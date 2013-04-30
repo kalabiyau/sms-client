@@ -1,4 +1,4 @@
 sms-client
 ==========
 
-SMS - SCC Messaging Service Client
+SMS (SCC Messaging Service) Client

@@ -24,5 +24,12 @@ if options[:type] && options[:message]
   password	= "admin"
 
   url = "#{protocol}://#{username}:#{password}@#{host}:#{port}#{path}"
-  request = RestClient.post url, { :type => options[:type], :text => options[:message] }
+
+  begin
+    request = RestClient.post url, { :type => options[:type], :text => options[:message] }
+  rescue Errno::ECONNREFUSED
+    puts "\033[33mERROR: SMS server is not running, please start sms-server\033[0m"
+  rescue RestClient::ResourceNotFound
+    puts "\033[33mERROR: The configuration is incorrect, please review the configuration file for possible errors\033[0m"
+  end
 end

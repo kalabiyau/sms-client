@@ -2,10 +2,12 @@
 require 'rubygems'
 require 'rest-client'
 require 'micro-optparse'
+require 'psych'
 
+# FIXME: replace options parser
 # extend options parser
 options = Parser.new do |p|
-  p.option :type, "set message type", :default => 'INFO', :value_in_set => ['SUCCESS','INFO','WARNING','ERROR']
+  p.option :type, "set message type", :default => 'INFO'
   p.option :message, "set message text", :default => ''
   p.option :sender, "set notification sender name", :default => 'SMS'
 
@@ -14,22 +16,36 @@ options = Parser.new do |p|
 end.process!
 
 #TODO: add SMSClient class and move this code to lib/client.rb
-if options[:type] && options[:message]
-  # TODO: read settings from config.yml
-  protocol 	= 'http'
-  host 		= 'localhost'
-  port 	= '9292'
-  path 		= '/enqueue'
-  username 	= "scc"
-  password	= "admin"
+def read_config
+  config_file = "~/.sms/config.yml"
 
-  url = "#{protocol}://#{username}:#{password}@#{host}:#{port}#{path}"
+  if File.exist? File.expand_path(config_file)
+    config = Psych.load_file(File.expand_path(config_file))
+    @protocol = config["sms-server"]["protocol"]
+    @host     = config["sms-server"]["host"]
+    @port     = config["sms-server"]["port"]
+    @path     = config["sms-server"]["path"]
+    @username = config["sms-server"]["username"]
+    @password = config["sms-server"]["password"]
 
-  begin
-    request = RestClient.post url, { :type => options[:type], :text => options[:message] }
-  rescue Errno::ECONNREFUSED
-    puts "\033[33mERROR: SMS server is not running, please start sms-server\033[0m"
-  rescue RestClient::ResourceNotFound
-    puts "\033[33mERROR: The configuration is incorrect, please review the configuration file for possible errors\033[0m"
+    return true
+  else
+    puts "\033[33mERROR: Config file not found!\033[0m" and return false
+  end
+end
+
+if !options[:type].nil? && !options[:message].empty?
+  if read_config
+    url = "#{@protocol}://#{@username}:#{@password}@#{@host}:#{@port}#{@path}"
+
+    begin
+      request = RestClient.post url, { :type => options[:type], :text => options[:message] }
+    rescue Errno::ECONNREFUSED => e
+      puts "\033[33mERROR: SMS server is not running, please start sms-server\033[0m"
+      puts "#{url} #{e.message}"
+    rescue URI::InvalidURIError, RestClient::ResourceNotFound => e
+      puts "\033[33mERROR: The configuration is incorrect, please review the configuration file for possible errors\033[0m"
+      puts e.message
+    end
   end
 end

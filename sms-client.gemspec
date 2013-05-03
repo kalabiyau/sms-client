@@ -12,4 +12,5 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'rest-client'
   s.add_runtime_dependency 'micro-optparse'
+  s.add_runtime_dependency 'psych'
 end

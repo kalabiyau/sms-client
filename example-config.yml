@@ -1,4 +1,4 @@
-# Config file for sms-client
+# Common options
 sms-server:
   protocol: 'http'
   host:     'localhost'
@@ -6,3 +6,14 @@ sms-server:
   path:     '/enqueue'
   username: 'scc'
   password: 'admin'
+
+
+# sms-client options
+sms-client:
+
+
+# IRC options
+irc:
+  nick:     ''
+  server:   ''
+  channels: ['#channel']

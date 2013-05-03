@@ -1,0 +1,8 @@
+# Config file for sms-client
+sms-server:
+  protocol: 'http'
+  host: 'localhost'
+  port: '9292'
+  path: 'enqueue'
+  username = 'scc'
+  password = 'admin'

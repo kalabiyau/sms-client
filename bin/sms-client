@@ -1,0 +1,28 @@
+#!/usr/bin/ruby
+require 'rubygems'
+require 'rest-client'
+require 'micro-optparse'
+
+# extend options parser
+options = Parser.new do |p|
+  p.option :type, "set message type", :default => 'INFO', :value_in_set => ['SUCCESS','INFO','WARNING','ERROR']
+  p.option :message, "set message text", :default => ''
+  p.option :sender, "set notification sender name", :default => 'SMS'
+
+  p.banner = "Client for SCC Messaging Service"
+  p.version = "sms-client-1.0.0"
+end.process!
+
+#TODO: add SMSClient class and move this code to lib/client.rb
+if options[:type] && options[:message]
+  # TODO: read settings from config.yml
+  protocol 	= 'http'
+  host 		= 'localhost'
+  port 	= '9292'
+  path 		= '/enqueue'
+  username 	= "scc"
+  password	= "admin"
+
+  url = "#{protocol}://#{username}:#{password}@#{host}:#{port}#{path}"
+  request = RestClient.post url, { :type => options[:type], :text => options[:message] }
+end

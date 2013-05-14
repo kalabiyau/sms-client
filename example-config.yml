@@ -1,19 +1,21 @@
-# Common options
+# Copy this file to ~/.sms and rename to config.yml
+
+### SMS server/client options
 sms-server:
   protocol: 'http'
   host:     'localhost'
   port:     '9292'
   path:     '/enqueue'
-  username: 'scc'
-  password: 'admin'
+  username: 'user'
+  password: 'password'
 
-
-# sms-client options
-sms-client:
-
-
+### SMS server options
 # IRC options
 irc:
-  nick:     ''
-  server:   ''
-  channels: ['#channel']
+  nick:     "sms"
+  server:   "irc.example.com"
+  channels: ["#channel"]
+
+# Other options
+contact:
+  email: example@email.com

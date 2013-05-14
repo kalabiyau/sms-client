@@ -1,51 +1,9 @@
 #!/usr/bin/ruby
-require 'rubygems'
-require 'rest-client'
-require 'micro-optparse'
-require 'psych'
 
-# FIXME: replace options parser
-# extend options parser
-options = Parser.new do |p|
-  p.option :type, "set message type", :default => 'INFO'
-  p.option :message, "set message text", :default => ''
-  p.option :sender, "set notification sender name", :default => 'SMS'
+$LOAD_PATH.unshift File.dirname(__FILE__) + '/../lib'
 
-  p.banner = "Client for SCC Messaging Service"
-  p.version = "sms-client-1.0.0"
-end.process!
+require 'sms-client'
+require 'sms/parser.rb'
 
-#TODO: add SMSClient class and move this code to lib/client.rb
-def read_config
-  config_file = "~/.sms/config.yml"
-
-  if File.exist? File.expand_path(config_file)
-    config = Psych.load_file(File.expand_path(config_file))
-    @protocol = config["sms-server"]["protocol"]
-    @host     = config["sms-server"]["host"]
-    @port     = config["sms-server"]["port"]
-    @path     = config["sms-server"]["path"]
-    @username = config["sms-server"]["username"]
-    @password = config["sms-server"]["password"]
-
-    return true
-  else
-    puts "\033[33mERROR: Config file not found!\033[0m" and return false
-  end
-end
-
-if !options[:type].nil? && !options[:message].empty?
-  if read_config
-    url = "#{@protocol}://#{@username}:#{@password}@#{@host}:#{@port}#{@path}"
-
-    begin
-      request = RestClient.post url, { :type => options[:type], :text => options[:message] }
-    rescue Errno::ECONNREFUSED => e
-      puts "\033[33mERROR: SMS server is not running, please start sms-server\033[0m"
-      puts "#{url} #{e.message}"
-    rescue URI::InvalidURIError, RestClient::ResourceNotFound => e
-      puts "\033[33mERROR: The configuration is incorrect, please review the configuration file for possible errors\033[0m"
-      puts e.message
-    end
-  end
-end
+options = SMS::Parser.parse(ARGV)
+SMS::Client.notify(options.type, options.message)

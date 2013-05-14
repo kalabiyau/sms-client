@@ -1,9 +1,9 @@
 module SMS
   class Client
-    def self.notify(type, message, sender=nil)
+    def self.notify(sender, message, type=nil)
       begin
-        notification = { :type => type, :text => message }
-        notification[:sender] = sender if sender
+        notification = { :sender => sender, :text => message }
+        notification[:type] = type if type
 
         sms_server_url = self.construct_url
         request = RestClient.post sms_server_url, notification

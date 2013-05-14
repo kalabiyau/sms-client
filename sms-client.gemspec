@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'sms-client'
-  s.version     = '1.0.0'
+  s.version     = '1.0.1'
   s.date        = Time.now.strftime('%F')
   s.summary     = "SMS Client"
   s.description = "Client sends notifications to SCC Messaging Server"
@@ -11,6 +11,6 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/vlewin/sms-client'
 
   s.add_runtime_dependency 'rest-client'
-  s.add_runtime_dependency 'micro-optparse'
+  s.add_runtime_dependency 'choice'
   s.add_runtime_dependency 'psych'
 end

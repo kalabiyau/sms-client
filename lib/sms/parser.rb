@@ -8,12 +8,6 @@ module SMS
 
         separator 'Required:'
 
-        option :sender do
-          short '-s'
-          long '--sender=SENDER'
-          desc 'The notification sender (e.g. hostname)'
-        end
-
         option :message, :required => true do
           short '-m'
           long '--message=MESSAGE'
@@ -21,6 +15,11 @@ module SMS
         end
 
         separator 'Optional:'
+        option :sender do
+          short '-s'
+          long '--sender=SENDER'
+          desc 'The notification sender (e.g. hostname)'
+        end
 
         option :type do
           short '-t'

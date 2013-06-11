@@ -6,4 +6,6 @@ require 'sms-client'
 require 'sms/parser.rb'
 
 options = SMS::Parser.parse(ARGV)
-SMS::Client.notify(options.sender, options.message, options.type)
+
+client = SMS::Client.new()
+client.notify(options.message, options.sender, options.type)

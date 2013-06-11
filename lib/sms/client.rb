@@ -1,14 +1,48 @@
+require 'rest-client'
+require 'psych'
+
+require 'uri'
+require 'socket'
+
+
 module SMS
   class Client
-    def self.notify(sender, message, type=nil)
+
+    @@attributes = [:server, :username, :password]
+    attr_accessor *@@attributes
+
+    def initialize(args = {})
+      if args.empty?
+        config_file = File.expand_path("~/.sms/config.yml")
+
+        if File.exist? config_file
+          config = Psych.load_file(config_file)
+
+          @server = config["sms-server"]["url"]
+          @username = config["sms-server"]["username"]
+          @password = config["sms-server"]["password"]
+        else
+          raise ArgumentError, "Missing required arguments"
+        end
+      else
+        args.keys.each do |k|
+          key = k.to_sym
+          instance_variable_set("@#{key}", args[key]) if @@attributes.include?(key)
+        end
+      end
+    end
+
+    def notify(message, sender=nil, type=nil)
       begin
-        notification = { :sender => sender, :text => message }
-        notification[:type] = type if type
-
         sms_server_url = self.construct_url
-        request = RestClient.post sms_server_url, notification
-        request.code == 200
 
+        notification = Hash.new
+        notification[:sender] = sender || Socket.gethostname
+        notification[:text] = message
+        notification[:type] = type || 'error'
+
+        request = RestClient.post(sms_server_url, notification)
+        request.code == 200
       rescue Errno::ECONNREFUSED => e
         puts "\033[33mERROR: SMS server is not running, please start sms-server\033[0m"
         puts "#{sms_server_url} #{e.message}"
@@ -20,28 +54,10 @@ module SMS
       end
     end
 
-    def self.read_config
-
-      config_file = File.expand_path("~/.sms/config.yml")
-
-      if File.exist? config_file
-        config = Psych.load_file(config_file)
-        @protocol = config["sms-server"]["protocol"]
-        @host     = config["sms-server"]["host"]
-        @port     = config["sms-server"]["port"]
-        @path     = config["sms-server"]["path"]
-        @username = config["sms-server"]["username"]
-        @password = config["sms-server"]["password"]
-
-        return true
-      else
-        raise "\033[33mERROR: Config file not found!\033[0m" and return false
-      end
+    def construct_url
+      uri = URI(self.server)
+      "#{uri.scheme}://#{self.username}:#{self.password}@#{uri.host}:#{uri.port}#{uri.path}"
     end
 
-    def self.construct_url
-      self.read_config
-      "#{@protocol}://#{@username}:#{@password}@#{@host}:#{@port}#{@path}"
-    end
   end
 end

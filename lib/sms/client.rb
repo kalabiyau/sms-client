@@ -1,5 +1,5 @@
 require 'rest-client'
-require 'psych'
+require 'yaml'
 
 require 'uri'
 require 'socket'
@@ -16,7 +16,7 @@ module SMS
         config_file = File.expand_path("~/.sms/config.yml")
 
         if File.exist? config_file
-          config = Psych.load_file(config_file)
+          config = YAML.load_file(config_file)
 
           @server = config["sms-server"]["url"]
           @username = config["sms-server"]["username"]
